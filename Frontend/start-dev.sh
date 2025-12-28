@@ -8,6 +8,10 @@ NC='\033[0m' # No Color
 
 echo -e "${GREEN}🚀 Starting Thread.AI Frontend...${NC}"
 
+# Disable VSCode extension hooks that cause conflicts
+unset ELECTRON_RUN_AS_NODE
+unset VSCODE_INJECTION
+
 # Check if running on macOS
 if [[ "$OSTYPE" == "darwin"* ]]; then
     echo -e "${YELLOW}Detected macOS - Setting up environment...${NC}"
@@ -45,10 +49,15 @@ if [ ! -d "node_modules" ]; then
     npm install
 fi
 
-# Start dev server with explicit node path
+# Start dev server with explicit node path and clean environment
 echo -e "${GREEN}🎨 Starting Next.js development server...${NC}"
 echo -e "${YELLOW}Visit: http://localhost:3000${NC}"
 echo ""
 
-# Use the node from nvm explicitly
-exec $(which node) ./node_modules/.bin/next dev
+# Use the node from nvm explicitly with clean environment
+env -i \
+  HOME="$HOME" \
+  USER="$USER" \
+  PATH="$PATH" \
+  NODE_ENV=development \
+  $(which node) ./node_modules/.bin/next dev
